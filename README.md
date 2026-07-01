@@ -24,6 +24,8 @@ The four targets are:
 - `src/prepare_dataset.py` reads ROOT inputs, matches reco-level and particle-level information, applies event selection, and writes the NumPy training dataset.
 - `src/train_mlp.py` trains the baseline MLP regression model.
 - `src/plot_prediction_diagnostics.py` plots prediction-vs-truth and residual diagnostics for the saved model.
+- `src/prepare_bjet_candidates.py` builds per-jet candidate features for b-jet assignment, including GN2/b-tagging information and W+jet top-compatibility variables.
+- `src/evaluate_bjet_candidates.py` compares the current highest-GN2 baseline with a simple GN2+top-mass heuristic and makes candidate-level diagnostic plots.
 
 ## Data and model artifacts
 
@@ -41,6 +43,32 @@ Keep these files locally or share them through the group-approved storage locati
 python3 src/prepare_dataset.py
 python3 src/train_mlp.py
 python3 src/plot_prediction_diagnostics.py
+```
+
+For the b-jet assignment feature layer:
+
+```bash
+python3 src/prepare_bjet_candidates.py
+python3 src/evaluate_bjet_candidates.py
+```
+
+The candidate dataset uses a padded shape:
+
+```text
+candidate_features: [events, max_jets, candidate_features]
+candidate_mask:     [events, max_jets]
+```
+
+The current highest-b-tag selection is kept as the baseline/control rule. Future assignment models should replace the final rule
+
+```text
+selected jet = argmax(GN2 score)
+```
+
+with an event-level assignment score while still using GN2 as an input feature:
+
+```text
+selected jet = argmax f(GN2, jet kinematics, W+jet mass, DeltaR, event context)
 ```
 
 ## Current physics direction
